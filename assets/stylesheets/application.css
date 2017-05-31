@@ -107,7 +107,7 @@ table {
 
 /* layout */
 body {
-  background: #333;
+  background: #222;
 
   color: #fff;
   font-family: 'Open Sans', sans-serif;
@@ -176,8 +176,5 @@ body {
 }
 
 #game-canvas {
-  width: 500px;
-  height: 500px;
-
-  background-image: url("../images/galaxy-background.jpg");
+  background: #000;
 }
