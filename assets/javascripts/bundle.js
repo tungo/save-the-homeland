@@ -248,7 +248,7 @@ class GameView {
     this.rightHeld = false;
     this.shootHelf = false;
 
-    this.bulletTime = 15; //fps 60 = 1/1s
+    this.bulletTime = 20; //fps 60 = 1/1s
     this.bulletNext = 0;
     this.blur = false;
 
@@ -409,13 +409,11 @@ class GameView {
 
   handleFocus(e) {
     this.game.blur = false;
+    requestAnimationFrame(this.animate.bind(this));
+    this.game.spawnInvaders();
   }
   handleBlur(e) {
     this.game.blur = true;
-  }
-
-  easyMode(enable) {
-    this.bulletTime = enable ? 0 : 15;
   }
 }
 
@@ -606,7 +604,7 @@ class Homeland {
 
 
 const DEFAULTS = {
-	COLOR: "#FF5722",
+	COLOR: "#F44336",
 	RADIUS: 10,
 	SEC: 2
 };
@@ -614,6 +612,7 @@ const DEFAULTS = {
 class Invader extends __WEBPACK_IMPORTED_MODULE_1__moving_object__["a" /* default */] {
   constructor(options) {
     options.color = DEFAULTS.COLOR;
+    options.border = '#EF9A9A';
     options.pos = options.pos || options.game.randomPosition();
     options.radius = DEFAULTS.RADIUS;
     options.vel = options.vel ||
@@ -653,6 +652,7 @@ class MovingObject {
     this.pos = options.pos;
     this.vel = options.vel;
     this.color = options.color;
+    this.border = options.border;
 
     this.radius = options.radius;
 
@@ -660,10 +660,14 @@ class MovingObject {
   }
 
   draw(ctx) {
-    ctx.fillStyle = this.color;
-
+    ctx.fillStyle = this.border;
     ctx.beginPath();
     ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
+    ctx.fill();
+
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.pos[0], this.pos[1], this.radius - 2, 0, 2 * Math.PI, true);
     ctx.fill();
   }
 
@@ -725,7 +729,8 @@ const Util = {
 class Bullet extends __WEBPACK_IMPORTED_MODULE_0__moving_object__["a" /* default */] {
   constructor(options) {
     options.radius = Bullet.RADIUS;
-    options.color = '#999';
+    options.color = '#90A4AE';
+    options.border = '#B0BEC5';
     options.vel = [options.vel[0] / Bullet.SPEED, options.vel[1] / Bullet.SPEED];
     super(options);
     this.angle = options.angle;
