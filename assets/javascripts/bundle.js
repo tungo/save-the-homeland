@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -71,195 +71,243 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__homeland__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__invader__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bullet__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__moving_object__ = __webpack_require__(3);
 
 
+const DEFAULTS = {
+	radius: 3,
+	speed: 5,
 
-
-const DEFAULT = {
-  dimX: 500,
-  dimY: 500,
-  center: [250, 250],
-
-  score: 0,
-  health: 3,
-
-  textColor: '#FFFFFF',
-  textFont: '16px lora',
-  bgColor: "#000000"
+	color: '#90A4AE',
+  borderColor: '#B0BEC5',
+  borderWidth: 1,
 };
 
-class Game {
+class Bullet extends __WEBPACK_IMPORTED_MODULE_0__moving_object__["a" /* default */] {
   constructor(options) {
-    options = Object.assign(DEFAULT, options);
-    this.homelands = [];
-    this.invaders = [];
-    this.bullets = [];
+    options = Object.assign({}, DEFAULTS, options);
 
-    this.dimX = options.dimX;
-    this.dimY = options.dimY;
-    this.center = options.center;
+    options.vel = [options.vel[0] / options.speed, options.vel[1] / options.speed];
 
-    this.score = options.score;
-    this.health = options.health;
+    super(options);
 
-    this.textColor = options.textColor;
-    this.textFont = options.textFont;
-    this.bgColor = options.bgColor;
-
-    this.start = false;
-    this.pause = false;
-    this.lost = false;
-    this.won = false;
-
-    this.spawnInvaders();
-  }
-
-
-  add(object) {
-    if (object instanceof __WEBPACK_IMPORTED_MODULE_0__homeland__["a" /* default */]) {
-      this.homelands.push(object);
-    } else if (object instanceof __WEBPACK_IMPORTED_MODULE_1__invader__["a" /* default */]) {
-      this.invaders.push(object);
-    } else if (object instanceof __WEBPACK_IMPORTED_MODULE_2__bullet__["a" /* default */]) {
-      this.bullets.push(object);
-    } else {
-      throw "ObjectTypeError";
-    }
-  }
-
-  addHomeland() {
-    const homeland = new __WEBPACK_IMPORTED_MODULE_0__homeland__["a" /* default */]({
-      game: this
-    });
-
-    this.add(homeland);
-
-    return homeland;
-  }
-
-  spawnInvaders() {
-    if (this.start && !this.pause) {
-      this.add(new __WEBPACK_IMPORTED_MODULE_1__invader__["a" /* default */]({
-        game: this
-      }));
-    }
-    if (!this.isOver() && !this.blur) {
-      setTimeout(this.spawnInvaders.bind(this), 750);
-    }
-  }
-
-  allObjects() {
-    return [].concat(this.homelands, this.invaders, this.bullets);
-  }
-
-  isOutOfBounds(pos) {
-    return (pos[0] < 0 ||
-            pos[1] < 0 ||
-            pos[0] > this.dimX ||
-            pos[1] > this.dimY);
-  }
-
-  checkCollisions() {
-    const invaders = this.invaders;
-    const targets = [].concat(this.homelands, this.bullets);
-
-    for (let i = 0; i < invaders.length; i++) {
-      for (let j = 0; j < targets.length; j++) {
-        const obj1 = invaders[i];
-        const obj2 = targets[j];
-
-        if (!obj1 || !obj2) {
-          continue;
-        }
-
-        if (obj1.isCollidedWith(obj2)) {
-          const collision = obj1.collideWith(obj2);
-          if (collision) continue;
-        }
-      }
-    }
-  }
-
-  moveObjects(delta) {
-    this.allObjects().forEach((object) => {
-      object.move(delta);
-    });
-  }
-
-  randomPosition() {
-    const pos = [
-      this.dimX * Math.random(),
-      this.dimY * Math.random()
-    ];
-
-    const edge = Math.floor(Math.random() * 4);
-    switch (edge) {
-      case 0:
-        return [0, pos[1]];
-      case 1:
-        return [this.dimX, pos[1]];
-      case 2:
-        return [pos[0], 0];
-      case 3:
-        return [pos[0], this.dimY];
-      default:
-        return [0, 0];
-    }
-  }
-
-  draw(ctx) {
-    ctx.clearRect(0, 0, this.dimX, this.dimY);
-    ctx.fillStyle = this.bgColor;
-    ctx.fillRect(0, 0, this.dimX, this.dimY);
-
-    ctx.fillStyle = this.textColor;
-    ctx.font = this.textFont;
-    ctx.fillText(`Score: ${this.score}`, 20, 20);
-    ctx.fillText(`Health: ${this.health}`, 420, 20);
-
-    this.allObjects().forEach((object) => {
-      object.draw(ctx);
-    });
-  }
-
-  step(delta) {
-    this.moveObjects(delta);
-    this.checkCollisions();
-
-    if (this.health === 0) {
-      this.lost = true;
-    }
-    if (this.score >= 100) {
-      this.won = true;
-    }
-  }
-
-  remove(object) {
-    if (object instanceof __WEBPACK_IMPORTED_MODULE_1__invader__["a" /* default */]) {
-      this.invaders.splice(this.invaders.indexOf(object), 1);
-    } else if (object instanceof __WEBPACK_IMPORTED_MODULE_2__bullet__["a" /* default */]) {
-      this.bullets.splice(this.bullets.indexOf(object), 1);
-    } else {
-      throw "ObjectTypeError";
-    }
-  }
-
-  isOver() {
-    return this.lost || this.won;
+    this.angle = options.angle;
   }
 }
 
-/* harmony default export */ __webpack_exports__["a"] = (Game);
+/* harmony default export */ __webpack_exports__["a"] = (Bullet);
 
 /***/ }),
 /* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game__ = __webpack_require__(0);
+const Util = {
+  toCenterVec(pos, center, sec) {
+    // fps is 60
+    return [
+      (center[0] - pos[0]) / sec / 60,
+      (center[1] - pos[1]) / sec / 60
+    ];
+  },
+
+  dist (pos1, pos2) {
+    return Math.sqrt(
+      Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2)
+    );
+  }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (Util);
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bullet__ = __webpack_require__(0);
+
+
+
+const DEFAULTS = {
+  radius: 30,
+  angle: 0,
+
+  color: '#4FC3F7',
+  borderColor: '#FFFFFF',
+  borderWidth: 2,
+
+  gunColor: '#FFEE58',
+};
+
+class Homeland {
+  constructor(options) {
+    options = Object.assign({}, DEFAULTS, options);
+
+    this.game = options.game;
+
+    this.pos = options.game.center;
+    this.radius = options.radius;
+    this.angle = options.angle;
+
+    this.color = options.color;
+    this.borderColor = options.borderColor;
+    this.borderWidth = options.borderWidth;
+    this.gunColor = options.gunColor;
+  }
+
+  draw(ctx) {
+    this.drawGuns(ctx);
+
+    const [x, y] = this.pos;
+
+    ctx.fillStyle = this.borderColor;
+    ctx.beginPath();
+    ctx.arc(x, y, this.radius, 0, 2 * Math.PI, true);
+    ctx.fill();
+
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(x, y, this.radius - this.borderWidth, 0, 2 * Math.PI, true);
+    ctx.fill();
+  }
+
+  drawGuns(ctx) {
+    const pos = this.getGunPos();
+
+    ctx.fillStyle = this.gunColor;
+
+    ctx.beginPath();
+    ctx.moveTo(...pos[0]);
+    for (let i = 1; i < 8; i ++) {
+      ctx.lineTo(...pos[i]);
+    }
+    ctx.fill();
+  }
+
+  getGunPos() {
+    const length = this.radius + 15;
+    const cos = length * Math.cos(this.angle);
+    const sin = length * Math.sin(this.angle);
+    const cosIn = length / 3 * Math.cos(this.angle + (45 * Math.PI / 180));
+    const sinIn = length / 3 * Math.sin(this.angle + (45 * Math.PI / 180));
+    const [x, y] = this.pos;
+
+    return [
+      [x + cos, y + sin],
+      [x + cosIn, y + sinIn],
+      [x - sin, y + cos],
+      [x - sinIn, y + cosIn],
+      [x - cos, y - sin],
+      [x - cosIn, y - sinIn],
+      [x + sin, y - cos],
+      [x + sinIn, y - cosIn],
+    ];
+  }
+
+  getBullets() {
+    const gunPos = this.getGunPos();
+    const [x, y] = this.pos;
+    const bullets = [];
+
+    gunPos.forEach((gpos, idx) => {
+      if (idx % 2 === 0) {
+        bullets.push({pos: gpos, vel: [gpos[0] - x, gpos[1] - y]});
+      }
+    });
+
+    return bullets;
+  }
+
+  move(timeDelta) {
+
+  }
+
+  spin(clockwise = true) {
+    if (clockwise) {
+      this.angle += 3 * Math.PI / 180;
+    } else {
+      this.angle -= 3 * Math.PI / 180;
+    }
+  }
+
+  fireBullets() {
+    const bullets = this.getBullets();
+
+    bullets.forEach((bullet) => {
+      this.game.add(new __WEBPACK_IMPORTED_MODULE_1__bullet__["a" /* default */]({
+        pos: bullet.pos,
+        vel: bullet.vel,
+        game: this.game,
+        angle: this.angle
+      }));
+    });
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Homeland);
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(1);
+
+
+class MovingObject {
+  constructor(options) {
+    this.game = options.game;
+
+    this.pos = options.pos;
+    this.vel = options.vel;
+    this.radius = options.radius;
+
+    this.color = options.color;
+    this.borderColor = options.borderColor;
+    this.borderWidth = options.borderWidth;
+  }
+
+  draw(ctx) {
+    ctx.fillStyle = this.borderColor;
+    ctx.beginPath();
+    ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
+    ctx.fill();
+
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.pos[0], this.pos[1], this.radius - this.borderWidth, 0, 2 * Math.PI, true);
+    ctx.fill();
+  }
+
+  move(timeDelta) {
+    this.pos = [this.pos[0] + this.vel[0], this.pos[1] + this.vel[1]];
+
+    if (this.game.isOutOfBounds(this.pos)) {
+      this.remove();
+    }
+  }
+
+  isCollidedWith(otherObject) {
+    const centerDist = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* default */].dist(this.pos, otherObject.pos);
+    return centerDist < (this.radius + otherObject.radius);
+  }
+
+  remove() {
+    this.game.remove(this);
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (MovingObject);
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game__ = __webpack_require__(6);
 
 
 class GameView {
@@ -442,12 +490,12 @@ class GameView {
 /* harmony default export */ __webpack_exports__["a"] = (GameView);
 
 /***/ }),
-/* 2 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_view__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_view__ = __webpack_require__(4);
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -483,161 +531,229 @@ const updatePause = (pauseButton, gameView) => {
 };
 
 /***/ }),
-/* 3 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__bullet__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__homeland__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__invader__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__bullet__ = __webpack_require__(0);
 
 
 
-const DEFAULT = {
-  radius: 30,
-  angle: 0,
 
-  color: '#4FC3F7',
-  borderColor: '#FFFFFF',
-  borderWidth: 2,
+const DEFAULTS = {
+  dimX: 500,
+  dimY: 500,
+  center: [250, 250],
 
-  gunColor: '#FFEE58',
+  score: 0,
+  health: 3,
+
+  textColor: '#FFFFFF',
+  textFont: '16px lora',
+  bgColor: "#000000"
 };
 
-class Homeland {
+class Game {
   constructor(options) {
-    options = Object.assign(DEFAULT, options);
+    options = Object.assign({}, DEFAULTS, options);
+    this.homelands = [];
+    this.invaders = [];
+    this.bullets = [];
 
-    this.game = options.game;
+    this.dimX = options.dimX;
+    this.dimY = options.dimY;
+    this.center = options.center;
 
-    this.pos = options.game.center;
-    this.radius = options.radius;
-    this.angle = options.angle;
+    this.score = options.score;
+    this.health = options.health;
 
-    this.color = options.color;
-    this.borderColor = options.borderColor;
-    this.borderWidth = options.borderWidth;
-    this.gunColor = options.gunColor;
+    this.textColor = options.textColor;
+    this.textFont = options.textFont;
+    this.bgColor = options.bgColor;
+
+    this.start = false;
+    this.pause = false;
+    this.lost = false;
+    this.won = false;
+
+    this.spawnInvaders();
+  }
+
+
+  add(object) {
+    if (object instanceof __WEBPACK_IMPORTED_MODULE_0__homeland__["a" /* default */]) {
+      this.homelands.push(object);
+    } else if (object instanceof __WEBPACK_IMPORTED_MODULE_1__invader__["a" /* default */]) {
+      this.invaders.push(object);
+    } else if (object instanceof __WEBPACK_IMPORTED_MODULE_2__bullet__["a" /* default */]) {
+      this.bullets.push(object);
+    } else {
+      throw "ObjectTypeError";
+    }
+  }
+
+  addHomeland() {
+    const homeland = new __WEBPACK_IMPORTED_MODULE_0__homeland__["a" /* default */]({
+      game: this
+    });
+
+    this.add(homeland);
+
+    return homeland;
+  }
+
+  spawnInvaders() {
+    if (this.start && !this.pause) {
+      this.add(new __WEBPACK_IMPORTED_MODULE_1__invader__["a" /* default */]({
+        game: this
+      }));
+    }
+    if (!this.isOver() && !this.blur) {
+      setTimeout(this.spawnInvaders.bind(this), 750);
+    }
+  }
+
+  allObjects() {
+    return [].concat(this.homelands, this.invaders, this.bullets);
+  }
+
+  isOutOfBounds(pos) {
+    return (pos[0] < 0 ||
+            pos[1] < 0 ||
+            pos[0] > this.dimX ||
+            pos[1] > this.dimY);
+  }
+
+  checkCollisions() {
+    const invaders = this.invaders;
+    const targets = [].concat(this.homelands, this.bullets);
+
+    for (let i = 0; i < invaders.length; i++) {
+      for (let j = 0; j < targets.length; j++) {
+        const obj1 = invaders[i];
+        const obj2 = targets[j];
+
+        if (!obj1 || !obj2) {
+          continue;
+        }
+
+        if (obj1.isCollidedWith(obj2)) {
+          const collision = obj1.collideWith(obj2);
+          if (collision) continue;
+        }
+      }
+    }
+  }
+
+  moveObjects(delta) {
+    this.allObjects().forEach((object) => {
+      object.move(delta);
+    });
+  }
+
+  randomPosition() {
+    const pos = [
+      this.dimX * Math.random(),
+      this.dimY * Math.random()
+    ];
+
+    const edge = Math.floor(Math.random() * 4);
+    switch (edge) {
+      case 0:
+        return [0, pos[1]];
+      case 1:
+        return [this.dimX, pos[1]];
+      case 2:
+        return [pos[0], 0];
+      case 3:
+        return [pos[0], this.dimY];
+      default:
+        return [0, 0];
+    }
   }
 
   draw(ctx) {
-    this.drawGuns(ctx);
+    ctx.clearRect(0, 0, this.dimX, this.dimY);
+    ctx.fillStyle = this.bgColor;
+    ctx.fillRect(0, 0, this.dimX, this.dimY);
 
-    const [x, y] = this.pos;
+    ctx.fillStyle = this.textColor;
+    ctx.font = this.textFont;
+    ctx.fillText(`Score: ${this.score}`, 20, 20);
+    ctx.fillText(`Health: ${this.health}`, 420, 20);
 
-    ctx.fillStyle = this.borderColor;
-    ctx.beginPath();
-    ctx.arc(x, y, this.radius, 0, 2 * Math.PI, true);
-    ctx.fill();
-
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(x, y, this.radius - this.borderWidth, 0, 2 * Math.PI, true);
-    ctx.fill();
-  }
-
-  drawGuns(ctx) {
-    const pos = this.getGunPos();
-
-    ctx.fillStyle = this.gunColor;
-
-    ctx.beginPath();
-    ctx.moveTo(...pos[0]);
-    for (let i = 1; i < 8; i ++) {
-      ctx.lineTo(...pos[i]);
-    }
-    ctx.fill();
-  }
-
-  getGunPos() {
-    const length = this.radius + 15;
-    const cos = length * Math.cos(this.angle);
-    const sin = length * Math.sin(this.angle);
-    const cosIn = length / 3 * Math.cos(this.angle + (45 * Math.PI / 180));
-    const sinIn = length / 3 * Math.sin(this.angle + (45 * Math.PI / 180));
-    const [x, y] = this.pos;
-
-    return [
-      [x + cos, y + sin],
-      [x + cosIn, y + sinIn],
-      [x - sin, y + cos],
-      [x - sinIn, y + cosIn],
-      [x - cos, y - sin],
-      [x - cosIn, y - sinIn],
-      [x + sin, y - cos],
-      [x + sinIn, y - cosIn],
-    ];
-  }
-
-  getBullets() {
-    const gunPos = this.getGunPos();
-    const [x, y] = this.pos;
-    const bullets = [];
-
-    gunPos.forEach((gpos, idx) => {
-      if (idx % 2 === 0) {
-        bullets.push({pos: gpos, vel: [gpos[0] - x, gpos[1] - y]});
-      }
+    this.allObjects().forEach((object) => {
+      object.draw(ctx);
     });
-
-    return bullets;
   }
 
-  move(timeDelta) {
+  step(delta) {
+    this.moveObjects(delta);
+    this.checkCollisions();
 
+    if (this.health === 0) {
+      this.lost = true;
+    }
+    if (this.score >= 100) {
+      this.won = true;
+    }
   }
 
-  spin(clockwise = true) {
-    if (clockwise) {
-      this.angle += 3 * Math.PI / 180;
+  remove(object) {
+    if (object instanceof __WEBPACK_IMPORTED_MODULE_1__invader__["a" /* default */]) {
+      this.invaders.splice(this.invaders.indexOf(object), 1);
+    } else if (object instanceof __WEBPACK_IMPORTED_MODULE_2__bullet__["a" /* default */]) {
+      this.bullets.splice(this.bullets.indexOf(object), 1);
     } else {
-      this.angle -= 3 * Math.PI / 180;
+      throw "ObjectTypeError";
     }
   }
 
-  fireBullets() {
-    const bullets = this.getBullets();
-
-    bullets.forEach((bullet) => {
-      this.game.add(new __WEBPACK_IMPORTED_MODULE_1__bullet__["a" /* default */]({
-        pos: bullet.pos,
-        vel: bullet.vel,
-        game: this.game,
-        angle: this.angle
-      }));
-    });
+  isOver() {
+    return this.lost || this.won;
   }
 }
 
-/* harmony default export */ __webpack_exports__["a"] = (Homeland);
+/* harmony default export */ __webpack_exports__["a"] = (Game);
 
 /***/ }),
-/* 4 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__moving_object__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__homeland__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bullet__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__moving_object__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__homeland__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bullet__ = __webpack_require__(0);
 
 
 
 
 
 const DEFAULTS = {
-	COLOR: "#F44336",
-	RADIUS: 10,
-	SEC: 2
+	radius: 10,
+	secToCenter: 2,
+
+	color: '#F44336',
+  borderColor: '#EF9A9A',
+  borderWidth: 2,
 };
 
 class Invader extends __WEBPACK_IMPORTED_MODULE_1__moving_object__["a" /* default */] {
   constructor(options) {
-    options.color = DEFAULTS.COLOR;
-    options.border = '#EF9A9A';
+    options = Object.assign({}, DEFAULTS, options);
+
     options.pos = options.pos || options.game.randomPosition();
-    options.radius = DEFAULTS.RADIUS;
+
     options.vel = options.vel ||
-                  __WEBPACK_IMPORTED_MODULE_0__util__["a" /* default */].toCenterVec(options.pos, [250, 250], DEFAULTS.SEC);
+                  __WEBPACK_IMPORTED_MODULE_0__util__["a" /* default */].toCenterVec(
+                    options.pos,
+                    options.game.center,
+                    options.secToCenter
+                  );
+
     super(options);
   }
 
@@ -656,112 +772,6 @@ class Invader extends __WEBPACK_IMPORTED_MODULE_1__moving_object__["a" /* defaul
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Invader);
-
-/***/ }),
-/* 5 */,
-/* 6 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util__ = __webpack_require__(7);
-
-
-const NORMAL_FRAME_TIME_DELTA = 1000 / 60;
-
-class MovingObject {
-  constructor(options) {
-    this.pos = options.pos;
-    this.vel = options.vel;
-    this.radius = options.radius;
-
-    this.color = options.color;
-    this.border = options.border;
-
-    this.game = options.game;
-  }
-
-  draw(ctx) {
-    ctx.fillStyle = this.border;
-    ctx.beginPath();
-    ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
-    ctx.fill();
-
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.pos[0], this.pos[1], this.radius - 2, 0, 2 * Math.PI, true);
-    ctx.fill();
-  }
-
-  move(timeDelta) {
-    const offsetX = this.vel[0];
-    const offsetY = this.vel[1];
-
-    this.pos = [this.pos[0] + offsetX, this.pos[1] + offsetY];
-
-    if (this.game.isOutOfBounds(this.pos)) {
-      this.remove();
-    }
-  }
-
-  isCollidedWith(otherObject) {
-    const centerDist = __WEBPACK_IMPORTED_MODULE_0__util__["a" /* default */].dist(this.pos, otherObject.pos);
-    return centerDist < (this.radius + otherObject.radius);
-  }
-
-  remove() {
-    this.game.remove(this);
-  }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (MovingObject);
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const Util = {
-  toCenterVec(pos, center, sec) {
-    // fps is 60
-    return [
-      (center[0] - pos[0]) / sec / 60,
-      (center[1] - pos[1]) / sec / 60
-    ];
-  },
-
-  dist (pos1, pos2) {
-    return Math.sqrt(
-      Math.pow(pos1[0] - pos2[0], 2) + Math.pow(pos1[1] - pos2[1], 2)
-    );
-  }
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (Util);
-
-/***/ }),
-/* 8 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__moving_object__ = __webpack_require__(6);
-
-
-class Bullet extends __WEBPACK_IMPORTED_MODULE_0__moving_object__["a" /* default */] {
-  constructor(options) {
-    options.radius = Bullet.RADIUS;
-    options.color = '#90A4AE';
-    options.border = '#B0BEC5';
-    options.vel = [options.vel[0] / Bullet.SPEED, options.vel[1] / Bullet.SPEED];
-    super(options);
-    this.angle = options.angle;
-  }
-}
-
-Bullet.RADIUS = 3;
-Bullet.SPEED = 5;
-
-/* harmony default export */ __webpack_exports__["a"] = (Bullet);
 
 /***/ })
 /******/ ]);
