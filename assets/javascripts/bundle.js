@@ -78,14 +78,36 @@
 
 
 
-class Game {
-  constructor(ctx) {
-    this.ctx = ctx;
+const DEFAULT = {
+  dimX: 500,
+  dimY: 500,
+  center: [250, 250],
 
+  score: 0,
+  health: 3,
+
+  textColor: '#FFFFFF',
+  textFont: '16px lora',
+  bgColor: "#000000"
+};
+
+class Game {
+  constructor(options) {
+    options = Object.assign(DEFAULT, options);
     this.homelands = [];
     this.invaders = [];
     this.bullets = [];
-    this.score = 0;
+
+    this.dimX = options.dimX;
+    this.dimY = options.dimY;
+    this.center = options.center;
+
+    this.score = options.score;
+    this.health = options.health;
+
+    this.textColor = options.textColor;
+    this.textFont = options.textFont;
+    this.bgColor = options.bgColor;
 
     this.start = false;
     this.pause = false;
@@ -136,8 +158,8 @@ class Game {
   isOutOfBounds(pos) {
     return (pos[0] < 0 ||
             pos[1] < 0 ||
-            pos[0] > Game.DIM_X ||
-            pos[1] > Game.DIM_Y);
+            pos[0] > this.dimX ||
+            pos[1] > this.dimY);
   }
 
   checkCollisions() {
@@ -169,8 +191,8 @@ class Game {
 
   randomPosition() {
     const pos = [
-      Game.DIM_X * Math.random(),
-      Game.DIM_Y * Math.random()
+      this.dimX * Math.random(),
+      this.dimY * Math.random()
     ];
 
     const edge = Math.floor(Math.random() * 4);
@@ -178,20 +200,25 @@ class Game {
       case 0:
         return [0, pos[1]];
       case 1:
-        return [Game.DIM_X, pos[1]];
+        return [this.dimX, pos[1]];
       case 2:
         return [pos[0], 0];
       case 3:
-        return [pos[0], Game.DIM_Y];
+        return [pos[0], this.dimY];
       default:
         return [0, 0];
     }
   }
 
   draw(ctx) {
-    ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
-    ctx.fillStyle = Game.BG_COLOR;
-    ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
+    ctx.clearRect(0, 0, this.dimX, this.dimY);
+    ctx.fillStyle = this.bgColor;
+    ctx.fillRect(0, 0, this.dimX, this.dimY);
+
+    ctx.fillStyle = this.textColor;
+    ctx.font = this.textFont;
+    ctx.fillText(`Score: ${this.score}`, 20, 20);
+    ctx.fillText(`Health: ${this.health}`, 420, 20);
 
     this.allObjects().forEach((object) => {
       object.draw(ctx);
@@ -202,7 +229,7 @@ class Game {
     this.moveObjects(delta);
     this.checkCollisions();
 
-    if (this.homelands[0].health === 0) {
+    if (this.health === 0) {
       this.lost = true;
     }
     if (this.score >= 100) {
@@ -224,11 +251,6 @@ class Game {
     return this.lost || this.won;
   }
 }
-
-Game.DIM_X = 500;
-Game.DIM_Y = 500;
-Game.CENTER = [250, 250];
-Game.BG_COLOR = "#000";
 
 /* harmony default export */ __webpack_exports__["a"] = (Game);
 
@@ -425,19 +447,14 @@ class GameView {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__game_view__ = __webpack_require__(1);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game_view__ = __webpack_require__(1);
 
 
 document.addEventListener('DOMContentLoaded', () => {
   const gameCanvas = document.getElementById('game-canvas');
 
-  gameCanvas.width = __WEBPACK_IMPORTED_MODULE_0__game__["a" /* default */].DIM_X;
-  gameCanvas.height = __WEBPACK_IMPORTED_MODULE_0__game__["a" /* default */].DIM_Y;
-
   const ctx = gameCanvas.getContext("2d");
-  const gameView = new __WEBPACK_IMPORTED_MODULE_1__game_view__["a" /* default */](ctx);
+  const gameView = new __WEBPACK_IMPORTED_MODULE_0__game_view__["a" /* default */](ctx);
   gameView.ready();
 
 
@@ -475,48 +492,53 @@ const updatePause = (pauseButton, gameView) => {
 
 
 
+const DEFAULT = {
+  radius: 30,
+  angle: 0,
+
+  color: '#4FC3F7',
+  borderColor: '#FFFFFF',
+  borderWidth: 2,
+
+  gunColor: '#FFEE58',
+};
+
 class Homeland {
-
   constructor(options) {
-    this.pos = [250, 250];
-    this.radius = 30;
-    this.angle = 0;
-
-    this.health = 3;
-    this.score = 0;
-
-    this.color = '#4FC3F7';
-    this.borderColor = '#FFF';
-    this.gunColor = '#FFEE58';
-    this.textColor = '#FFF';
-    this.textFont = '16px san-serif';
+    options = Object.assign(DEFAULT, options);
 
     this.game = options.game;
+
+    this.pos = options.game.center;
+    this.radius = options.radius;
+    this.angle = options.angle;
+
+    this.color = options.color;
+    this.borderColor = options.borderColor;
+    this.borderWidth = options.borderWidth;
+    this.gunColor = options.gunColor;
   }
 
   draw(ctx) {
-    ctx.fillStyle = this.gunColor;
-
     this.drawGuns(ctx);
+
+    const [x, y] = this.pos;
 
     ctx.fillStyle = this.borderColor;
     ctx.beginPath();
-    ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
+    ctx.arc(x, y, this.radius, 0, 2 * Math.PI, true);
     ctx.fill();
 
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.arc(this.pos[0], this.pos[1], this.radius - 2, 0, 2 * Math.PI, true);
+    ctx.arc(x, y, this.radius - this.borderWidth, 0, 2 * Math.PI, true);
     ctx.fill();
-
-    ctx.fillStyle = this.textColor;
-    ctx.font = this.textFont;
-    ctx.fillText(`Score: ${this.game.score}`, 20, 20);
-    ctx.fillText(`Health: ${this.health}`, 420, 20);
   }
 
   drawGuns(ctx) {
     const pos = this.getGunPos();
+
+    ctx.fillStyle = this.gunColor;
 
     ctx.beginPath();
     ctx.moveTo(...pos[0]);
@@ -584,7 +606,6 @@ class Homeland {
       }));
     });
   }
-
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Homeland);
@@ -623,7 +644,7 @@ class Invader extends __WEBPACK_IMPORTED_MODULE_1__moving_object__["a" /* defaul
   collideWith(otherObject) {
     if (otherObject instanceof __WEBPACK_IMPORTED_MODULE_2__homeland__["a" /* default */]) {
       this.remove();
-      otherObject.health--;
+      this.game.health--;
       return true;
     } else if (otherObject instanceof __WEBPACK_IMPORTED_MODULE_3__bullet__["a" /* default */]) {
       this.remove();
@@ -651,10 +672,10 @@ class MovingObject {
   constructor(options) {
     this.pos = options.pos;
     this.vel = options.vel;
+    this.radius = options.radius;
+
     this.color = options.color;
     this.border = options.border;
-
-    this.radius = options.radius;
 
     this.game = options.game;
   }
