@@ -209,6 +209,9 @@ body {
 .main-content > aside {
   width: 200px;
 }
+.main-content > aside h3 {
+  font-size: 18px;
+}
 .main-content > article {
   margin: 0 20px;
 }
