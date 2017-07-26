@@ -199,6 +199,12 @@ body {
   font-size: 12px;
 }
 
+.main-container > footer a {
+  color: #ccc;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .main-content {
   display: flex;
   justify-content: center;
